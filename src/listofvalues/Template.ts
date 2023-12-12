@@ -19,39 +19,32 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Class, Form, FormsModule, StaticMenu, StaticMenuEntry } from "futureforms";
-import { Template } from "../../forms/generated/Template";
 
-export class FormList extends StaticMenu
+import { Filter, Filters, ListOfValues } from "futureforms";
+import { Template as DataSource } from '../datasources/Template';
+
+
+export class Template implements ListOfValues
 {
+	public title:string = "title";
+
+	public filter:Filter;
+	public datasource:DataSource;
+
+	public sourcefields:string[];
+	public targetfields:string[];
+	public displayfields:string[];
+
+	public inQueryMode:boolean = true;
+	public inReadOnlyMode:boolean = false;
+
 	constructor()
 	{
-		super(FormList.data());
-	}
+		this.datasource = new DataSource();
+		this.filter = Filters.Equals("col0")
 
-	public async execute(path:string): Promise<boolean>
-	{
-		let form:Class<Form> = null;
-		if (path == "/forms/template") form = Template;
-
-		if (form) await FormsModule.showform(form);
-		return(true);
-	}
-
-	private static data() : StaticMenuEntry
-	{
-		return(
-		{
-			id: "demo",
-			display: "Demo",
-			entries:
-			[
-				{
-					id: "template",
-					display: "Template",
-					command: "/forms/template"
-				}
-			]
-		});
+		this.sourcefields = ["col1","col2"];
+		this.targetfields = ["field1","field2"];
+		this.displayfields = ["col0","col3","col4"];
 	}
 }

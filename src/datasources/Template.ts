@@ -19,44 +19,23 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import content from './Generated.html';
-
-import { Alert, Block, EventType, FormEvent, datasource, formevent } from 'futureforms';
-import { BaseForm } from '../../BaseForm';
-import { GeneratedDS } from './GeneratedDS';
+import { FormsModule } from "../FormsModule";
+import { DatabaseTable, LockMode } from "futureforms";
 
 
-@datasource("employees",GeneratedDS)
-
-export class Generated extends BaseForm
+export class Template extends DatabaseTable
 {
+	public static table:string = "employees";
+	public static order:string = "last_name";
+	public static primarykey:string[] = ["employee_id"];
+
+
 	constructor()
 	{
-		super(content);
-		this.title = "Employees";
+		super(FormsModule.DATABASE,Template.table);
+
+		this.sorting = Template.order;
+		this.primaryKey = Template.primarykey;
+		this.rowlocking = LockMode.Pessimistic;
 	}
-
-	@formevent({type: EventType.OnFetch})
-	public async jonas(event:FormEvent) : Promise<boolean>
-	{
-		let emp:Block = this.getBlock(event.block);
-		emp.setValue("name",emp.getValue("first_name")+" "+emp.getValue("last_name"))
-		return(true);
-	}
-
-	@formevent({type: EventType.WhenValidateField, field: "salary"})
-	public async salary(event:FormEvent) : Promise<boolean>
-	{
-		let emp:Block = this.getBlock(event.block);
-		let salary:number = emp.getValue("salary");
-
-		if (salary > 10000)
-		{
-			Alert.warning("Not allowed in this company","Salary");
-			return(false);
-		}
-
-		return(true);
-	}
-
 }

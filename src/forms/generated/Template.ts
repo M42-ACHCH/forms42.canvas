@@ -19,39 +19,42 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Class, Form, FormsModule, StaticMenu, StaticMenuEntry } from "futureforms";
-import { Template } from "../../forms/generated/Template";
+import content from './Template.html';
 
-export class FormList extends StaticMenu
+import { BaseForm } from '../../BaseForm';
+import { Template as DataSource } from '../../datasources/Template';
+import { Block, EventType, FormEvent, TableSorter, datasource, formevent } from 'futureforms';
+
+
+@datasource("fromclause",DataSource)
+
+export class Template extends BaseForm
 {
+	private sorter:TableSorter;
+
 	constructor()
 	{
-		super(FormList.data());
+		super(content);
+		this.title = "Template";
+		this.sorter = new TableSorter(this);
 	}
 
-	public async execute(path:string): Promise<boolean>
+	/** Trigger template */
+	@formevent({type: EventType.WhenValidateField})
+	public async validateField(event:FormEvent) : Promise<boolean>
 	{
-		let form:Class<Form> = null;
-		if (path == "/forms/template") form = Template;
+		let field:string = event.field;
+		let block:Block = this.getBlock(event.block);
 
-		if (form) await FormsModule.showform(form);
+		let value:any = block.getValue(field);
+		console.log("validate "+field+" - "+value);
+
 		return(true);
 	}
 
-	private static data() : StaticMenuEntry
+	/** Referenced by labels in html */
+	public async sort(block:string, column:string) : Promise<boolean>
 	{
-		return(
-		{
-			id: "demo",
-			display: "Demo",
-			entries:
-			[
-				{
-					id: "template",
-					display: "Template",
-					command: "/forms/template"
-				}
-			]
-		});
+		return(this.sorter.toggle(block,column).sort(block));
 	}
 }

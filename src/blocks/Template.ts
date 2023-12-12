@@ -19,17 +19,23 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { FormsModule } from "../../FormsModule";
-import { DatabaseTable, LockMode } from "futureforms";
 
-export class GeneratedDS extends DatabaseTable
+import { Template as DataSource } from '../datasources/Template';
+import { Block, EventType, Form, FormEvent, formevent } from "futureforms";
+
+export class Template extends Block
 {
-	constructor()
+	constructor(form:Form, name:string)
 	{
-		super(FormsModule.DATABASE,"employees");
+		super(form,name);
+		this.datasource = new DataSource();
+	}
 
-		this.sorting = "last_name";
-		this.primaryKey = "employee_id";
-		this.rowlocking = LockMode.Pessimistic;
+
+	/** Trigger template */
+	@formevent({type: EventType.WhenValidateField})
+	public async validateField(event:FormEvent) : Promise<boolean>
+	{
+		return(true);
 	}
 }
