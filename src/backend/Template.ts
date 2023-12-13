@@ -25,7 +25,7 @@ import { BindValue, DataType, ParameterType, SQLStatement, StoredProcedure } fro
 
 export class Template
 {
-	public static async execSomeSQL(parameter:string) : Promise<string>
+	public static async execSomeSQL(arg1:string) : Promise<string>
 	{
 		let row:any[] = null;
 		let stmt:SQLStatement = new SQLStatement(FormsModule.DATABASE);
@@ -34,10 +34,10 @@ export class Template
 		`
 			select column1
 			from table
-			where column0 = :id
+			where column0 = :arg1
 		`;
 
-		stmt.addBindValue(new BindValue("id",parameter,DataType.string));
+		stmt.addBindValue(new BindValue("arg1",arg1,DataType.string));
 
 		let success:boolean = await stmt.execute();
 		if (success) row = await stmt.fetch();
@@ -47,25 +47,25 @@ export class Template
 	}
 
 
-	public static async procWithInOut(parameter:string) : Promise<number[]>
+	public static async procWithInOut(arg1:string) : Promise<number[]>
 	{
-		let limit:number[] = [0,0];
+		let out:number[] = [0,0];
 		let func:StoredProcedure = new StoredProcedure(FormsModule.DATABASE);
 
 		func.setName("funcWithInOut");
 
-		func.addParameter("parameter",parameter,DataType.varchar);
-		func.addParameter("outval1",0,DataType.integer,ParameterType.inout);
-		func.addParameter("outval2",0,DataType.integer,ParameterType.inout);
+		func.addParameter("arg1",arg1,DataType.varchar);
+		func.addParameter("out1",0,DataType.integer,ParameterType.inout);
+		func.addParameter("out2",0,DataType.integer,ParameterType.inout);
 
 		let success:boolean = await func.execute();
 
 		if (success)
 		{
-			limit[0] = func.getOutParameter("outval1");
-			limit[1] = func.getOutParameter("outval2");
+			out[0] = func.getOutParameter("out1");
+			out[1] = func.getOutParameter("out2");
 		}
 
-		return(limit);
+		return(out);
 	}
 }
